@@ -2,8 +2,10 @@
   import type { MessageRecord } from '$lib/storage/db';
   import { currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
+  import { uiStore, type UiError } from '$lib/stores/ui';
 
   let currentMessages: MessageRecord[] = [];
+  let activeError: UiError | null = null;
 
   $: if ($currentConversationIdStore) {
     void messagesStore.load($currentConversationIdStore);
@@ -12,6 +14,12 @@
   $: currentMessages = $currentConversationIdStore
     ? $messagesStore[$currentConversationIdStore] ?? []
     : [];
+
+  $: activeError =
+    $uiStore.error &&
+    ($uiStore.error.conversationId ?? null) === $currentConversationIdStore
+      ? $uiStore.error
+      : null;
 
   const formatTime = (timestamp: number) =>
     new Date(timestamp).toLocaleTimeString(undefined, {
@@ -25,6 +33,38 @@
     <h2>Messages</h2>
     <p>Conversation history appears here.</p>
   </header>
+
+  {#if activeError}
+    <div class="error-banner">
+      <div>
+        <strong>{activeError.title}</strong>
+        <p>{activeError.message}</p>
+        {#if activeError.mode || activeError.status}
+          <p class="context">
+            {#if activeError.mode}
+              {activeError.mode === 'proxy' ? 'Proxy mode' : 'Direct mode'}
+            {/if}
+            {#if activeError.status}
+              {activeError.mode ? ' · ' : ''}Status {activeError.status}
+            {/if}
+          </p>
+        {/if}
+        {#if activeError.detail}
+          <p class="detail">{activeError.detail}</p>
+        {/if}
+      </div>
+      <div class="actions">
+        {#if activeError.retry}
+          <button type="button" on:click={() => void activeError.retry?.()}>
+            {activeError.actionLabel ?? 'Retry'}
+          </button>
+        {/if}
+        <button type="button" class="ghost" on:click={() => uiStore.clearError()}>
+          Dismiss
+        </button>
+      </div>
+    </div>
+  {/if}
 
   <div class="messages">
     {#if !$currentConversationIdStore}
@@ -73,6 +113,60 @@
     gap: 1rem;
     overflow-y: auto;
     padding-right: 0.5rem;
+  }
+
+  .error-banner {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid #f2c94c;
+    background: #fffbeb;
+    color: #7a5200;
+  }
+
+  .error-banner strong {
+    display: block;
+    font-size: 0.95rem;
+    color: #7a5200;
+  }
+
+  .error-banner p {
+    margin: 0.35rem 0 0;
+  }
+
+  .error-banner .context {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a87000;
+  }
+
+  .error-banner .detail {
+    font-size: 0.8rem;
+    color: #946200;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .error-banner button {
+    border: none;
+    background: #f2c94c;
+    color: #5c3d00;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .error-banner button.ghost {
+    background: transparent;
+    border: 1px solid #f2c94c;
   }
 
   .message {

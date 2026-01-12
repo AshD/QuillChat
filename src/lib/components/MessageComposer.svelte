@@ -1,13 +1,119 @@
 <script lang="ts">
   import { get } from 'svelte/store';
 
-  import { streamChatCompletions } from '$lib/api/chat';
+  import { ChatCompletionError, streamChatCompletions } from '$lib/api/chat';
   import type { ConversationRecord, MessageRecord } from '$lib/storage/db';
   import { conversationsStore, currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
   import { settingsStore } from '$lib/stores/settings';
+  import { uiStore, type UiError } from '$lib/stores/ui';
 
   let message = '';
+
+  const buildUiError = (
+    error: unknown,
+    context: { conversationId: string; model: string; mode: 'direct' | 'proxy' },
+  ): UiError => {
+    const base: UiError = {
+      id: crypto.randomUUID(),
+      title: 'Unable to send message',
+      message: 'The chat service did not respond. Please try again.',
+      conversationId: context.conversationId,
+      mode: context.mode,
+    };
+
+    if (error instanceof ChatCompletionError) {
+      const lower = error.message.toLowerCase();
+      base.detail = error.message;
+      base.status = error.status;
+      base.mode = error.mode;
+
+      if (error.status === 401 || error.status === 403 || lower.includes('api key')) {
+        return {
+          ...base,
+          title: 'Authentication error',
+          message:
+            'We could not authenticate the request. Check your API key in Settings and try again.',
+        };
+      }
+
+      if (
+        error.status === 404 ||
+        (lower.includes('model') && (lower.includes('not found') || lower.includes('missing')))
+      ) {
+        return {
+          ...base,
+          title: 'Model not found',
+          message: `The model "${context.model}" is unavailable. Update the default model in Settings.`,
+        };
+      }
+
+      if (error.status === 429 || lower.includes('rate limit')) {
+        return {
+          ...base,
+          title: 'Rate limit reached',
+          message: 'The service is rate limiting requests. Wait a moment and retry.',
+        };
+      }
+
+      if (error.status && error.status >= 500) {
+        return {
+          ...base,
+          title: 'Service unavailable',
+          message:
+            context.mode === 'proxy'
+              ? 'The proxy could not reach the chat service. Try again shortly.'
+              : 'The chat service is temporarily unavailable. Try again shortly.',
+        };
+      }
+
+      if (error.status === 400) {
+        return {
+          ...base,
+          title: 'Request rejected',
+          message:
+            'The request was rejected. Verify the model name and settings, then retry.',
+        };
+      }
+
+      return {
+        ...base,
+        title: 'Request failed',
+        message: error.message || base.message,
+      };
+    }
+
+    if (error instanceof Error) {
+      const lower = error.message.toLowerCase();
+      if (error.name === 'AbortError') {
+        return {
+          ...base,
+          title: 'Request timed out',
+          message: 'The request took too long. Retry in a moment.',
+          detail: error.message,
+        };
+      }
+
+      if (lower.includes('failed to fetch') || lower.includes('network')) {
+        return {
+          ...base,
+          title: 'Network error',
+          message:
+            'Network error while contacting the chat service. Check your connection and retry.',
+          detail: error.message,
+        };
+      }
+
+      return {
+        ...base,
+        title: 'Unexpected error',
+        message: error.message || base.message,
+        detail: error.message,
+      };
+    }
+
+    return base;
+  };
 
   const createConversation = (initialMessage: string) => {
     const id = crypto.randomUUID();
@@ -48,6 +154,8 @@
       return;
     }
 
+    uiStore.clearError();
+
     let conversationId = $currentConversationIdStore;
 
     if (!conversationId) {
@@ -85,7 +193,10 @@
 
     await messagesStore.add(assistantMessage);
 
-    try {
+    const streamResponse = async () => {
+      assistantMessage.content = '';
+      await messagesStore.update({ ...assistantMessage });
+
       await streamChatCompletions({
         baseUrl: settings.baseUrl,
         apiKey: settings.apiKey,
@@ -100,8 +211,33 @@
           await messagesStore.update({ ...assistantMessage });
         },
       });
-    } catch (error) {
+    };
+
+    const handleStreamError = (error: unknown) => {
       console.error(error);
+      const uiError = buildUiError(error, {
+        conversationId,
+        model: settings.defaultModel,
+        mode: settings.useProxy ? 'proxy' : 'direct',
+      });
+      uiStore.setError({
+        ...uiError,
+        actionLabel: 'Retry request',
+        retry: async () => {
+          uiStore.clearError();
+          try {
+            await streamResponse();
+          } catch (retryError) {
+            handleStreamError(retryError);
+          }
+        },
+      });
+    };
+
+    try {
+      await streamResponse();
+    } catch (error) {
+      handleStreamError(error);
     }
   };
 </script>

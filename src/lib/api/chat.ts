@@ -11,6 +11,23 @@ export type ChatCompletionRequest = {
   stream?: boolean;
 };
 
+export class ChatCompletionError extends Error {
+  status?: number;
+  mode: 'direct' | 'proxy';
+  detail?: string;
+
+  constructor(
+    message: string,
+    options: { status?: number; mode: 'direct' | 'proxy'; detail?: string },
+  ) {
+    super(message);
+    this.name = 'ChatCompletionError';
+    this.status = options.status;
+    this.mode = options.mode;
+    this.detail = options.detail;
+  }
+}
+
 type StreamOptions = {
   baseUrl: string;
   apiKey?: string;
@@ -86,7 +103,33 @@ export const streamChatCompletions = async ({
 
   if (!response.ok) {
     const errorBody = await response.text();
-    throw new Error(`Chat completion failed: ${response.status} ${errorBody}`);
+    let detail = errorBody;
+    let message = errorBody;
+
+    if (errorBody) {
+      try {
+        const parsed = JSON.parse(errorBody) as {
+          error?: { message?: string };
+          message?: string;
+        };
+        message =
+          parsed.error?.message ??
+          parsed.message ??
+          message ??
+          response.statusText;
+      } catch {
+        message = errorBody || response.statusText;
+      }
+    } else {
+      message = response.statusText || 'Chat completion failed.';
+      detail = response.statusText;
+    }
+
+    throw new ChatCompletionError(message, {
+      status: response.status,
+      mode: useProxy ? 'proxy' : 'direct',
+      detail,
+    });
   }
 
   if (!response.body) {
