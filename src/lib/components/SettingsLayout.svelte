@@ -2,17 +2,16 @@
   import SettingsForm from '$lib/components/SettingsForm.svelte';
 </script>
 
-<section class="settings-layout">
+<section class="settings-layout d-grid gap-4">
   <header>
-    <h1>Settings</h1>
-    <p>Configure account preferences and integrations.</p>
+    <h1 class="h3 mb-1">Settings</h1>
+    <p class="text-muted mb-0">Tune your workspace and model preferences.</p>
   </header>
   <SettingsForm />
 </section>
 
 <style>
   .settings-layout {
-    display: grid;
-    gap: 1.5rem;
+    max-width: 720px;
   }
 </style>

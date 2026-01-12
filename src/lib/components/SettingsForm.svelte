@@ -26,109 +26,76 @@
     };
 </script>
 
-<form class="settings-form">
-  <div class="field">
-    <label for="base-url">Base URL</label>
-    <input
-      id="base-url"
-      type="url"
-      placeholder="https://api.example.com"
-      value={$settingsStore.baseUrl}
-      on:input={handleTextInput('baseUrl')}
-    />
-  </div>
+<form class="settings-form chatgpt-card">
+  <div class="card-body d-grid gap-3">
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="base-url">Base URL</label>
+      <input
+        id="base-url"
+        class="form-control form-control-lg"
+        type="url"
+        placeholder="https://api.example.com"
+        value={$settingsStore.baseUrl}
+        on:input={handleTextInput('baseUrl')}
+      />
+    </div>
 
-  <div class="field">
-    <label for="api-key">API Key</label>
-    <input
-      id="api-key"
-      type="password"
-      placeholder="sk-..."
-      value={$settingsStore.apiKey}
-      on:input={handleTextInput('apiKey')}
-    />
-  </div>
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="api-key">API Key</label>
+      <input
+        id="api-key"
+        class="form-control form-control-lg"
+        type="password"
+        placeholder="sk-..."
+        value={$settingsStore.apiKey}
+        on:input={handleTextInput('apiKey')}
+      />
+    </div>
 
-  <div class="field">
-    <label for="default-model">Default Model</label>
-    <input
-      id="default-model"
-      type="text"
-      placeholder="gpt-3.5-turbo"
-      value={$settingsStore.defaultModel}
-      on:input={handleTextInput('defaultModel')}
-    />
-  </div>
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="default-model">Default Model</label>
+      <input
+        id="default-model"
+        class="form-control form-control-lg"
+        type="text"
+        placeholder="gpt-3.5-turbo"
+        value={$settingsStore.defaultModel}
+        on:input={handleTextInput('defaultModel')}
+      />
+    </div>
 
-  <div class="field">
-    <label for="temperature">Temperature</label>
-    <input
-      id="temperature"
-      type="number"
-      min="0"
-      max="2"
-      step="0.1"
-      value={$settingsStore.temperature}
-      on:input={handleTemperatureInput}
-    />
-  </div>
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="temperature">Temperature</label>
+      <input
+        id="temperature"
+        class="form-control form-control-lg"
+        type="number"
+        min="0"
+        max="2"
+        step="0.1"
+        value={$settingsStore.temperature}
+        on:input={handleTemperatureInput}
+      />
+    </div>
 
-  <div class="field checkbox-field">
-    <label for="use-proxy">
+    <div class="form-check form-switch mt-2">
       <input
         id="use-proxy"
+        class="form-check-input"
         type="checkbox"
+        role="switch"
         checked={$settingsStore.useProxy}
         on:change={handleCheckboxInput('useProxy')}
       />
-      Use proxy server for requests
-    </label>
+      <label class="form-check-label" for="use-proxy">
+        Use proxy server for requests
+      </label>
+    </div>
   </div>
 </form>
 
 <style>
   .settings-form {
-    display: grid;
-    gap: 1.5rem;
-    padding: 2rem;
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid #e5eaf3;
-  }
-
-  .field {
-    display: grid;
-    gap: 0.5rem;
-  }
-
-  label {
-    font-weight: 600;
-    color: #1f2a44;
-  }
-
-  input {
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    border: 1px solid #c8d0e0;
-    font-size: 0.95rem;
-  }
-
-  .checkbox-field label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-  }
-
-  .checkbox-field input {
-    width: 1rem;
-    height: 1rem;
-    padding: 0;
-  }
-
-  input:focus {
-    outline: none;
-    border-color: #4c6fff;
-    box-shadow: 0 0 0 3px rgba(76, 111, 255, 0.15);
+    border-radius: 1rem;
   }
 </style>

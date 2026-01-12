@@ -28,19 +28,21 @@
     });
 </script>
 
-<section class="message-list">
-  <header>
-    <h2>Messages</h2>
-    <p>Conversation history appears here.</p>
+<section class="message-list d-flex flex-column gap-3 flex-grow-1">
+  <header class="d-flex justify-content-between align-items-end">
+    <div>
+      <h2 class="h6 text-uppercase text-muted mb-1">Messages</h2>
+      <p class="text-muted small mb-0">Conversation history appears here.</p>
+    </div>
   </header>
 
   {#if activeError}
-    <div class="error-banner">
+    <div class="alert alert-warning d-flex justify-content-between align-items-start gap-3 mb-0">
       <div>
-        <strong>{activeError.title}</strong>
-        <p>{activeError.message}</p>
+        <strong class="d-block">{activeError.title}</strong>
+        <p class="mb-1">{activeError.message}</p>
         {#if activeError.mode || activeError.status}
-          <p class="context">
+          <p class="context mb-1 text-uppercase small">
             {#if activeError.mode}
               {activeError.mode === 'proxy' ? 'Proxy mode' : 'Direct mode'}
             {/if}
@@ -50,161 +52,85 @@
           </p>
         {/if}
         {#if activeError.detail}
-          <p class="detail">{activeError.detail}</p>
+          <p class="detail small mb-0">{activeError.detail}</p>
         {/if}
       </div>
-      <div class="actions">
+      <div class="actions d-flex gap-2 flex-wrap">
         {#if activeError.retry}
-          <button type="button" on:click={() => void activeError.retry?.()}>
+          <button type="button" class="btn btn-warning btn-sm" on:click={() => void activeError.retry?.()}>
             {activeError.actionLabel ?? 'Retry'}
           </button>
         {/if}
-        <button type="button" class="ghost" on:click={() => uiStore.clearError()}>
+        <button type="button" class="btn btn-outline-warning btn-sm" on:click={() => uiStore.clearError()}>
           Dismiss
         </button>
       </div>
     </div>
   {/if}
 
-  <div class="messages">
-    {#if !$currentConversationIdStore}
-      <div class="empty">Select or start a conversation to begin chatting.</div>
+    <div class="messages d-flex flex-column gap-3 flex-grow-1">
+      {#if !$currentConversationIdStore}
+      <div class="empty border border-dashed rounded-4 text-center text-muted p-4 bg-light">
+        Select or start a conversation to begin chatting.
+      </div>
     {:else if currentMessages.length === 0}
-      <div class="empty">No messages yet. Say hello!</div>
+      <div class="empty border border-dashed rounded-4 text-center text-muted p-4 bg-light">
+        No messages yet. Say hello!
+      </div>
     {:else}
       {#each currentMessages as message (message.id)}
-        <article class="message {message.role}">
-          <div class="meta">
-            <span class="role">{message.role}</span>
-            <span>{formatTime(message.createdAt)}</span>
-          </div>
-          <p>{message.content}</p>
-        </article>
+        <div class="message-row d-flex {message.role}">
+          <article class="message-bubble {message.role}">
+            <div class="meta d-flex justify-content-between small text-uppercase text-muted">
+              <span class="role fw-semibold">{message.role}</span>
+              <span>{formatTime(message.createdAt)}</span>
+            </div>
+            <p class="mt-2 mb-0">{message.content}</p>
+          </article>
+        </div>
       {/each}
     {/if}
   </div>
 </section>
 
 <style>
-  .message-list {
-    display: grid;
-    gap: 1rem;
-    flex: 1;
-    min-height: 0;
-  }
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
-
-  h2 {
-    margin: 0;
-  }
-
-  p {
-    margin: 0;
-    color: #667085;
-  }
-
   .messages {
-    display: grid;
-    gap: 1rem;
     overflow-y: auto;
-    padding-right: 0.5rem;
+    padding-right: 0.25rem;
   }
 
-  .error-banner {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+  .message-row.user {
+    justify-content: flex-end;
+  }
+
+  .message-row.assistant {
+    justify-content: flex-start;
+  }
+
+  .message-bubble {
+    max-width: min(720px, 100%);
     padding: 1rem 1.25rem;
-    border-radius: 14px;
-    border: 1px solid #f2c94c;
-    background: #fffbeb;
-    color: #7a5200;
+    border-radius: 18px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
   }
 
-  .error-banner strong {
-    display: block;
-    font-size: 0.95rem;
-    color: #7a5200;
+  .message-bubble.user {
+    background: #eefbf5;
+    border-color: #bbf7d0;
   }
 
-  .error-banner p {
-    margin: 0.35rem 0 0;
-  }
-
-  .error-banner .context {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #a87000;
-  }
-
-  .error-banner .detail {
-    font-size: 0.8rem;
-    color: #946200;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .error-banner button {
-    border: none;
-    background: #f2c94c;
-    color: #5c3d00;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-    font-weight: 600;
-  }
-
-  .error-banner button.ghost {
-    background: transparent;
-    border: 1px solid #f2c94c;
-  }
-
-  .message {
-    padding: 1rem;
-    border-radius: 12px;
+  .message-bubble.assistant {
     background: #f8fafc;
-    border: 1px solid #e5eaf3;
+    border-color: #e2e8f0;
   }
 
-  .message.user {
-    background: #eef2ff;
-    border-color: #c7d2fe;
-  }
-
-  .message.assistant {
-    background: #ecfdf3;
-    border-color: #b7ebc6;
-  }
-
-  .meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #667085;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .message p {
-    margin: 0.5rem 0 0;
+  .message-bubble p {
     white-space: pre-wrap;
   }
 
-  .empty {
-    padding: 2rem;
-    border-radius: 12px;
-    border: 1px dashed #c8d0e0;
-    text-align: center;
-    color: #667085;
+  .border-dashed {
+    border-style: dashed;
   }
 </style>
