@@ -8,7 +8,8 @@
     const now = Date.now();
     const conversation: ConversationRecord = {
       id,
-      title: 'New conversation',
+      title: 'New Chat',
+      createdAt: now,
       updatedAt: now,
     };
 
