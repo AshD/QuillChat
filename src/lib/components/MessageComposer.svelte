@@ -89,6 +89,7 @@
       await streamChatCompletions({
         baseUrl: settings.baseUrl,
         apiKey: settings.apiKey,
+        useProxy: settings.useProxy,
         request: {
           model: settings.defaultModel,
           messages: payloadMessages,

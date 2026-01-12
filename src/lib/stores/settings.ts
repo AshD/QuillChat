@@ -6,6 +6,7 @@ export type Settings = {
   apiKey: string;
   defaultModel: string;
   temperature: number;
+  useProxy: boolean;
 };
 
 const STORAGE_KEY = 'quillchat.settings';
@@ -15,6 +16,7 @@ const defaultSettings: Settings = {
   apiKey: '',
   defaultModel: 'gpt-3.5-turbo',
   temperature: 0.7,
+  useProxy: false,
 };
 
 const loadSettings = (): Settings => {
@@ -36,6 +38,10 @@ const loadSettings = (): Settings => {
         typeof parsed.temperature === 'number'
           ? parsed.temperature
           : defaultSettings.temperature,
+      useProxy:
+        typeof parsed.useProxy === 'boolean'
+          ? parsed.useProxy
+          : defaultSettings.useProxy,
     };
   } catch {
     return defaultSettings;
