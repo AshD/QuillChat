@@ -1,7 +1,11 @@
 <script lang="ts">
+  import { get } from 'svelte/store';
+
+  import { streamChatCompletions } from '$lib/api/chat';
   import type { ConversationRecord, MessageRecord } from '$lib/storage/db';
   import { conversationsStore, currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
+  import { settingsStore } from '$lib/stores/settings';
 
   let message = '';
 
@@ -38,7 +42,7 @@
     conversationsStore.upsert(conversation);
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const trimmed = message.trim();
     if (!trimmed) {
       return;
@@ -61,8 +65,43 @@
       createdAt: Date.now(),
     };
 
-    void messagesStore.add(outgoing);
+    await messagesStore.add(outgoing);
     message = '';
+
+    const settings = get(settingsStore);
+    const messages = get(messagesStore)[conversationId] ?? [];
+    const payloadMessages = messages.map((item) => ({
+      role: item.role as 'system' | 'user' | 'assistant',
+      content: item.content,
+    }));
+
+    const assistantMessage: MessageRecord = {
+      id: crypto.randomUUID(),
+      conversationId,
+      role: 'assistant',
+      content: '',
+      createdAt: Date.now(),
+    };
+
+    await messagesStore.add(assistantMessage);
+
+    try {
+      await streamChatCompletions({
+        baseUrl: settings.baseUrl,
+        apiKey: settings.apiKey,
+        request: {
+          model: settings.defaultModel,
+          messages: payloadMessages,
+          temperature: settings.temperature,
+        },
+        onDelta: async (content) => {
+          assistantMessage.content += content;
+          await messagesStore.update({ ...assistantMessage });
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 </script>
 
