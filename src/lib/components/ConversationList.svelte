@@ -37,41 +37,48 @@
   }
 </script>
 
-<section class="conversation-list">
-  <header>
+<section class="conversation-list d-grid gap-3">
+  <header class="d-flex justify-content-between align-items-start gap-3">
     <div>
-      <h2>Conversations</h2>
-      <p>Pick up where you left off.</p>
+      <h2 class="h6 text-uppercase text-muted mb-1">Conversations</h2>
+      <p class="text-muted small mb-0">Pick up where you left off.</p>
     </div>
-    <button class="new" type="button" on:click={createConversation}>New</button>
+    <button class="btn btn-success btn-sm rounded-pill" type="button" on:click={createConversation}>
+      New chat
+    </button>
   </header>
 
-  <div class="list">
+  <div class="list d-grid gap-2">
     {#if $conversationsStore.length === 0}
-      <div class="empty">
-        <p>No conversations yet.</p>
-        <button type="button" on:click={createConversation}>Start one</button>
+      <div class="empty border border-dashed rounded-4 text-center p-4 text-muted bg-light">
+        <p class="mb-2">No conversations yet.</p>
+        <button type="button" class="btn btn-outline-success btn-sm rounded-pill" on:click={createConversation}>
+          Start one
+        </button>
       </div>
     {:else}
       {#each $conversationsStore as conversation (conversation.id)}
         <div
-          class="row {conversation.id === $currentConversationIdStore
+          class="conversation-row d-flex align-items-center justify-content-between gap-3 p-3 border rounded-4 bg-white {conversation.id ===
+          $currentConversationIdStore
             ? 'active'
             : ''}"
         >
           <button
-            class="select"
+            class="select btn btn-link text-start text-decoration-none flex-grow-1 p-0 text-body"
             type="button"
             on:click={() => selectConversation(conversation.id)}
           >
-            <div>
-              <h3>{conversation.title}</h3>
-              <span>{formatTimestamp(conversation.updatedAt)}</span>
+            <div class="d-flex justify-content-between align-items-center gap-3">
+              <div>
+                <h3 class="h6 mb-1 fw-semibold">{conversation.title}</h3>
+                <span class="text-muted small">{formatTimestamp(conversation.updatedAt)}</span>
+              </div>
+              <span class="meta text-uppercase text-muted small">Updated</span>
             </div>
-            <span class="meta">Updated</span>
           </button>
           <button
-            class="delete"
+            class="btn btn-outline-secondary btn-sm rounded-circle"
             type="button"
             on:click={() => removeConversation(conversation.id)}
             aria-label="Delete conversation"
@@ -85,107 +92,19 @@
 </section>
 
 <style>
-  .conversation-list {
-    display: grid;
-    gap: 1rem;
-    height: 100%;
+  .conversation-row.active {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
   }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+  .conversation-row.active .select,
+  .conversation-row.active .select h3,
+  .conversation-row.active .select span,
+  .conversation-row.active .select .meta {
+    color: #047857;
   }
 
-  h2 {
-    margin: 0;
-  }
-
-  p {
-    margin: 0.25rem 0 0;
-    color: #667085;
-  }
-
-  .new {
-    background: #4c6fff;
-    color: #fff;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-weight: 600;
-  }
-
-  .list {
-    display: grid;
-    gap: 0.75rem;
-    overflow-y: auto;
-  }
-
-  .row {
-    border: 1px solid #e5eaf3;
-    border-radius: 12px;
-    background: #fff;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-  }
-
-  .row.active {
-    border-color: #4c6fff;
-    box-shadow: 0 0 0 3px rgba(76, 111, 255, 0.1);
-  }
-
-  .select {
-    background: transparent;
-    border: none;
-    text-align: left;
-    padding: 0.75rem 0.75rem 0.75rem 1rem;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  .row h3 {
-    margin: 0;
-    font-size: 0.95rem;
-  }
-
-  .row span {
-    color: #667085;
-    font-size: 0.8rem;
-  }
-
-  .meta {
-    color: #94a3b8;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .delete {
-    border: none;
-    background: transparent;
-    color: #94a3b8;
-    font-size: 1rem;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .empty {
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px dashed #c8d0e0;
-    color: #667085;
-    text-align: center;
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .empty button {
-    border: none;
-    background: #e5eaf3;
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
-    font-weight: 600;
+  .border-dashed {
+    border-style: dashed;
   }
 </style>

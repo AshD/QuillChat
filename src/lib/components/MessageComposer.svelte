@@ -245,69 +245,49 @@
   };
 </script>
 
-<section class="message-composer">
-  <label for="message-input">Message</label>
-  <div class="composer">
-    <textarea
-      id="message-input"
-      rows="3"
-      placeholder="Send a message..."
-      bind:value={message}
-    ></textarea>
-    <button type="button" on:click={sendMessage} disabled={!message.trim()}>
-      Send
-    </button>
+<section class="message-composer chatgpt-card">
+  <div class="card-body d-grid gap-3">
+    <label for="message-input" class="form-label visually-hidden">Message</label>
+    <div class="composer">
+      <textarea
+        id="message-input"
+        class="form-control form-control-lg border-0 bg-transparent"
+        rows="3"
+        placeholder="Message QuillChat..."
+        bind:value={message}
+      ></textarea>
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="text-muted">Shift + Enter for a new line</small>
+        <button
+          type="button"
+          class="btn btn-success rounded-pill px-4"
+          on:click={sendMessage}
+          disabled={!message.trim()}
+        >
+          Send
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
 <style>
   .message-composer {
-    display: grid;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    border-radius: 16px;
-    border: 1px solid #e5eaf3;
-    background: #fff;
-  }
-
-  label {
-    font-weight: 600;
-    color: #1f2a44;
+    border-radius: 20px;
   }
 
   .composer {
-    display: grid;
-    gap: 0.75rem;
+    border-radius: 18px;
+    padding: 1rem 1.25rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
   }
 
   textarea {
-    width: 100%;
     resize: vertical;
-    border-radius: 12px;
-    border: 1px solid #c8d0e0;
-    padding: 0.75rem 1rem;
-    font-family: inherit;
-    font-size: 0.95rem;
   }
 
   textarea:focus {
-    outline: none;
-    border-color: #4c6fff;
-    box-shadow: 0 0 0 3px rgba(76, 111, 255, 0.15);
-  }
-
-  button {
-    justify-self: end;
-    border: none;
-    background: #4c6fff;
-    color: #fff;
-    font-weight: 600;
-    padding: 0.6rem 1.5rem;
-    border-radius: 999px;
-  }
-
-  button:disabled {
-    background: #cbd5f5;
-    cursor: not-allowed;
+    box-shadow: none;
   }
 </style>
