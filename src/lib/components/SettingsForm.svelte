@@ -18,6 +18,12 @@
   const handleTemperatureInput = (event: Event & { currentTarget: HTMLInputElement }) => {
     updateSetting('temperature', Number(event.currentTarget.value));
   };
+
+  const handleCheckboxInput =
+    (key: 'useProxy') =>
+    (event: Event & { currentTarget: HTMLInputElement }) => {
+      updateSetting(key, event.currentTarget.checked);
+    };
 </script>
 
 <form class="settings-form">
@@ -66,6 +72,18 @@
       on:input={handleTemperatureInput}
     />
   </div>
+
+  <div class="field checkbox-field">
+    <label for="use-proxy">
+      <input
+        id="use-proxy"
+        type="checkbox"
+        checked={$settingsStore.useProxy}
+        on:change={handleCheckboxInput('useProxy')}
+      />
+      Use proxy server for requests
+    </label>
+  </div>
 </form>
 
 <style>
@@ -93,6 +111,19 @@
     border-radius: 10px;
     border: 1px solid #c8d0e0;
     font-size: 0.95rem;
+  }
+
+  .checkbox-field label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+
+  .checkbox-field input {
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
   }
 
   input:focus {
