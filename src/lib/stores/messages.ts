@@ -52,6 +52,26 @@ const saveMessages = async (conversationId: string, messages: MessageRecord[]) =
   await db.putMany('messages', messages);
 };
 
+const updateMessage = async (message: MessageRecord) => {
+  messagesWritable.update((current) => {
+    const existing = current[message.conversationId] ?? [];
+    const index = existing.findIndex((item) => item.id === message.id);
+    const next =
+      index === -1
+        ? [...existing, message]
+        : existing.map((item, idx) => (idx === index ? message : item));
+
+    return {
+      ...current,
+      [message.conversationId]: next,
+    };
+  });
+
+  if (browser) {
+    await db.put('messages', message);
+  }
+};
+
 const clearMessages = async (conversationId: string) => {
   messagesWritable.update((current) => {
     const next = { ...current };
@@ -71,6 +91,7 @@ export const messagesStore = {
   subscribe: messagesWritable.subscribe,
   load: loadMessages,
   add: saveMessage,
+  update: updateMessage,
   setAll: saveMessages,
   clear: clearMessages,
 };
