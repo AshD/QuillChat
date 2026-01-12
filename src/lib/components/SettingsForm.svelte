@@ -8,6 +8,16 @@
       [key]: value,
     }));
   };
+
+  const handleTextInput =
+    (key: 'baseUrl' | 'apiKey' | 'defaultModel') =>
+    (event: Event & { currentTarget: HTMLInputElement }) => {
+      updateSetting(key, event.currentTarget.value);
+    };
+
+  const handleTemperatureInput = (event: Event & { currentTarget: HTMLInputElement }) => {
+    updateSetting('temperature', Number(event.currentTarget.value));
+  };
 </script>
 
 <form class="settings-form">
@@ -18,9 +28,7 @@
       type="url"
       placeholder="https://api.example.com"
       value={$settingsStore.baseUrl}
-      on:input={(event) =>
-        updateSetting('baseUrl', (event.target as HTMLInputElement).value)
-      }
+      on:input={handleTextInput('baseUrl')}
     />
   </div>
 
@@ -31,9 +39,7 @@
       type="password"
       placeholder="sk-..."
       value={$settingsStore.apiKey}
-      on:input={(event) =>
-        updateSetting('apiKey', (event.target as HTMLInputElement).value)
-      }
+      on:input={handleTextInput('apiKey')}
     />
   </div>
 
@@ -44,9 +50,7 @@
       type="text"
       placeholder="gpt-3.5-turbo"
       value={$settingsStore.defaultModel}
-      on:input={(event) =>
-        updateSetting('defaultModel', (event.target as HTMLInputElement).value)
-      }
+      on:input={handleTextInput('defaultModel')}
     />
   </div>
 
@@ -59,12 +63,7 @@
       max="2"
       step="0.1"
       value={$settingsStore.temperature}
-      on:input={(event) =>
-        updateSetting(
-          'temperature',
-          Number((event.target as HTMLInputElement).value)
-        )
-      }
+      on:input={handleTemperatureInput}
     />
   </div>
 </form>
