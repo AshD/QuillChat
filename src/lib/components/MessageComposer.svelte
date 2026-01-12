@@ -118,10 +118,11 @@
   const createConversation = (initialMessage: string) => {
     const id = crypto.randomUUID();
     const now = Date.now();
-    const title = initialMessage.trim().slice(0, 40) || 'New conversation';
+    const title = initialMessage.trim().slice(0, 40) || 'New Chat';
     const conversation: ConversationRecord = {
       id,
       title,
+      createdAt: now,
       updatedAt: now,
     };
 
@@ -133,15 +134,17 @@
 
   const updateConversationTimestamp = (conversationId: string, content: string) => {
     const existing = $conversationsStore.find((item) => item.id === conversationId);
-    const fallbackTitle = content.trim().slice(0, 40) || 'New conversation';
+    const fallbackTitle = content.trim().slice(0, 40) || 'New Chat';
     const title =
-      existing?.title === 'New conversation'
+      existing?.title === 'New Chat'
         ? fallbackTitle
         : existing?.title ?? fallbackTitle;
+    const createdAt = existing?.createdAt ?? Date.now();
 
     const conversation: ConversationRecord = {
       id: conversationId,
       title,
+      createdAt,
       updatedAt: Date.now(),
     };
 

@@ -28,14 +28,45 @@ const persistSelectedConversation = (conversationId: string | null) => {
 const conversationsWritable = writable<ConversationRecord[]>([]);
 const currentConversationIdWritable = writable<string | null>(loadSelectedConversation());
 
+const normalizeConversation = (conversation: ConversationRecord): ConversationRecord => {
+  const title = conversation.title?.trim() || 'New Chat';
+  const createdAt = conversation.createdAt ?? conversation.updatedAt ?? Date.now();
+  const updatedAt = conversation.updatedAt ?? createdAt;
+
+  return {
+    ...conversation,
+    title,
+    createdAt,
+    updatedAt,
+  };
+};
+
 const loadConversations = async () => {
   if (!browser) {
     return;
   }
 
   const records = await db.getAll('conversations');
-  records.sort((a, b) => b.updatedAt - a.updatedAt);
-  conversationsWritable.set(records);
+  const normalized = records.map((record) => normalizeConversation(record));
+  normalized.sort((a, b) => b.updatedAt - a.updatedAt);
+  conversationsWritable.set(normalized);
+
+  const recordById = new Map(records.map((record) => [record.id, record]));
+  const needsPersist = normalized.some((conversation) => {
+    const existing = recordById.get(conversation.id);
+    if (!existing) {
+      return true;
+    }
+    return (
+      conversation.title !== existing.title ||
+      conversation.createdAt !== existing.createdAt ||
+      conversation.updatedAt !== existing.updatedAt
+    );
+  });
+
+  if (needsPersist) {
+    await db.putMany('conversations', normalized);
+  }
 };
 
 if (browser) {
@@ -43,14 +74,15 @@ if (browser) {
 }
 
 const upsertConversation = async (conversation: ConversationRecord) => {
+  const normalized = normalizeConversation(conversation);
   conversationsWritable.update((current) => {
-    const next = current.filter((item) => item.id !== conversation.id);
-    next.unshift(conversation);
+    const next = current.filter((item) => item.id !== normalized.id);
+    next.unshift(normalized);
     return next;
   });
 
   if (browser) {
-    await db.put('conversations', conversation);
+    await db.put('conversations', normalized);
   }
 };
 
@@ -78,10 +110,13 @@ export const conversationsStore = {
   upsert: upsertConversation,
   remove: removeConversation,
   setAll: async (conversations: ConversationRecord[]) => {
-    conversationsWritable.set(conversations);
+    const normalized = conversations.map((conversation) =>
+      normalizeConversation(conversation),
+    );
+    conversationsWritable.set(normalized);
     if (browser) {
       await db.clear('conversations');
-      await db.putMany('conversations', conversations);
+      await db.putMany('conversations', normalized);
     }
   },
 };

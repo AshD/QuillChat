@@ -6,6 +6,7 @@ const DB_VERSION = 1;
 export type ConversationRecord = {
   id: string;
   title: string;
+  createdAt: number;
   updatedAt: number;
 };
 
