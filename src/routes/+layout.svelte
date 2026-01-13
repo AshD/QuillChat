@@ -1,9 +1,11 @@
 <script lang="ts">
   import { browser } from '$app/environment';
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { settingsStore } from '$lib/stores/settings';
 
   let prefersDarkQuery: MediaQueryList | null = null;
+  const withBase = (path: string) => `${base}${path}`;
 
   const resolveTheme = (theme: 'light' | 'dark' | 'system') => {
     if (theme === 'system') {
@@ -51,14 +53,19 @@
 <div class="app-shell d-flex flex-column min-vh-100">
   <header class="app-header border-bottom">
     <div class="container-fluid px-4 py-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
-      <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold mb-0" href="/">
+      <a
+        class="navbar-brand d-flex align-items-center gap-2 fw-semibold mb-0"
+        href={withBase('/')}
+      >
         <span class="fs-4">✒️</span>
         <span>QuillChat</span>
         <span class="badge rounded-pill text-bg-dark ms-2">GPT-5</span>
       </a>
       <nav class="d-flex align-items-center gap-2">
-        <a class="btn btn-sm btn-light border-0 text-secondary" href="/">Chat</a>
-        <a class="btn btn-sm btn-outline-secondary" href="/settings">Settings</a>
+        <a class="btn btn-sm btn-light border-0 text-secondary" href={withBase('/')}>Chat</a>
+        <a class="btn btn-sm btn-outline-secondary" href={withBase('/settings/')}>
+          Settings
+        </a>
       </nav>
     </div>
   </header>

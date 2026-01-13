@@ -31,11 +31,6 @@
     updateSetting('temperature', Number(event.currentTarget.value));
   };
 
-  const handleCheckboxInput =
-    (key: 'useProxy') =>
-    (event: Event & { currentTarget: HTMLInputElement }) => {
-      updateSetting(key, event.currentTarget.checked);
-    };
 </script>
 
 <form class="settings-form chatgpt-card">
@@ -102,20 +97,6 @@
         <option value="light">Light</option>
         <option value="dark">Dark</option>
       </select>
-    </div>
-
-    <div class="form-check form-switch mt-2">
-      <input
-        id="use-proxy"
-        class="form-check-input"
-        type="checkbox"
-        role="switch"
-        checked={$settingsStore.useProxy}
-        on:change={handleCheckboxInput('useProxy')}
-      />
-      <label class="form-check-label" for="use-proxy">
-        Use proxy server for requests
-      </label>
     </div>
 
     <div class="field">

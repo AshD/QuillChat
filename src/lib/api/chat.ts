@@ -13,12 +13,12 @@ export type ChatCompletionRequest = {
 
 export class ChatCompletionError extends Error {
   status?: number;
-  mode: 'direct' | 'proxy';
+  mode: 'direct';
   detail?: string;
 
   constructor(
     message: string,
-    options: { status?: number; mode: 'direct' | 'proxy'; detail?: string },
+    options: { status?: number; mode: 'direct'; detail?: string },
   ) {
     super(message);
     this.name = 'ChatCompletionError';
@@ -33,7 +33,6 @@ type StreamOptions = {
   apiKey?: string;
   request: ChatCompletionRequest;
   onDelta: (content: string) => void | Promise<void>;
-  useProxy?: boolean;
 };
 
 const buildChatUrl = (baseUrl: string) =>
@@ -69,37 +68,22 @@ export const streamChatCompletions = async ({
   apiKey,
   request,
   onDelta,
-  useProxy = false,
 }: StreamOptions) => {
   if (!baseUrl) {
     throw new Error('Base URL is required to send chat completions.');
   }
 
-  const response = await fetch(
-    useProxy ? '/api/chat' : buildChatUrl(baseUrl),
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(useProxy ? {} : apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-      },
-      body: JSON.stringify(
-        useProxy
-          ? {
-              baseUrl,
-              apiKey,
-              request: {
-                ...request,
-                stream: true,
-              },
-            }
-          : {
-              ...request,
-              stream: true,
-            },
-      ),
+  const response = await fetch(buildChatUrl(baseUrl), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
     },
-  );
+    body: JSON.stringify({
+      ...request,
+      stream: true,
+    }),
+  });
 
   if (!response.ok) {
     const errorBody = await response.text();
@@ -127,7 +111,7 @@ export const streamChatCompletions = async ({
 
     throw new ChatCompletionError(message, {
       status: response.status,
-      mode: useProxy ? 'proxy' : 'direct',
+      mode: 'direct',
       detail,
     });
   }
