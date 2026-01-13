@@ -13,10 +13,7 @@
     isSidebarCollapsed = !isSidebarCollapsed;
   };
 
-  $: hasSettings = $settingsStore.baseUrl.trim().length > 0;
-  $: if (!hasSettings) {
-    showSettings = true;
-  }
+  $: hasSettings = Boolean($settingsStore.baseUrl && $settingsStore.apiKey);
 </script>
 
 <section class="chat-layout d-grid gap-4">
@@ -49,15 +46,13 @@
     </div>
   </header>
 
-  {#if showSettings}
+  {#if !hasSettings}
     <div class="chatgpt-card setup-card">
       <div class="card-body d-grid gap-2">
         <div>
-          <h2 class="h5 mb-1">{hasSettings ? 'Quick settings' : 'Connect your model'}</h2>
+          <h2 class="h5 mb-1">Connect your model</h2>
           <p class="text-muted mb-0">
-            {hasSettings
-              ? 'Update your base URL, API key, or model defaults without leaving the chat.'
-              : 'Add your API base URL (and key if required) to start chatting with an OpenAI-compatible model.'}
+            Add your API base URL and key to start chatting with an OpenAI-compatible model.
           </p>
         </div>
         <SettingsForm />
