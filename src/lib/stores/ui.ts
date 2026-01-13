@@ -6,7 +6,7 @@ export type UiError = {
   message: string;
   detail?: string;
   status?: number;
-  mode?: 'direct' | 'proxy';
+  mode?: 'direct';
   conversationId?: string | null;
   actionLabel?: string;
   retry?: () => Promise<void>;

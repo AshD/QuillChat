@@ -6,7 +6,6 @@ export type Settings = {
   apiKey: string;
   defaultModel: string;
   temperature: number;
-  useProxy: boolean;
   theme: 'light' | 'dark' | 'system';
   customInstructions: string;
 };
@@ -18,7 +17,6 @@ const defaultSettings: Settings = {
   apiKey: '',
   defaultModel: 'gpt-3.5-turbo',
   temperature: 0.7,
-  useProxy: false,
   theme: 'system',
   customInstructions: '',
 };
@@ -42,10 +40,6 @@ const loadSettings = (): Settings => {
         typeof parsed.temperature === 'number'
           ? parsed.temperature
           : defaultSettings.temperature,
-      useProxy:
-        typeof parsed.useProxy === 'boolean'
-          ? parsed.useProxy
-          : defaultSettings.useProxy,
       theme:
         parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === 'system'
           ? parsed.theme
