@@ -8,9 +8,7 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter({
-      fallback: '404.html',
-      pages: 'src',
-      assets: 'static'
+      fallback: '404.html'
     }),
     paths: {
       base: basePath
