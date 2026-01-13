@@ -2,12 +2,17 @@
   import ConversationList from '$lib/components/ConversationList.svelte';
   import MessageComposer from '$lib/components/MessageComposer.svelte';
   import MessageList from '$lib/components/MessageList.svelte';
+  import SettingsForm from '$lib/components/SettingsForm.svelte';
+  import { settingsStore } from '$lib/stores/settings';
 
   let isSidebarCollapsed = false;
+  let hasSettings = false;
 
   const toggleSidebar = () => {
     isSidebarCollapsed = !isSidebarCollapsed;
   };
+
+  $: hasSettings = $settingsStore.baseUrl.trim().length > 0;
 </script>
 
 <section class="chat-layout d-grid gap-4">
@@ -31,6 +36,20 @@
       </div>
     </div>
   </header>
+
+  {#if !hasSettings}
+    <div class="chatgpt-card setup-card">
+      <div class="card-body d-grid gap-2">
+        <div>
+          <h2 class="h5 mb-1">Connect your model</h2>
+          <p class="text-muted mb-0">
+            Add your API base URL (and key if required) to start chatting with an OpenAI-compatible model.
+          </p>
+        </div>
+        <SettingsForm />
+      </div>
+    </div>
+  {/if}
 
   <div class="row g-4 workspace {isSidebarCollapsed ? 'collapsed' : ''}">
     <aside class="col-12 col-lg-4 col-xl-3 sidebar">
@@ -71,5 +90,9 @@
   .workspace.collapsed .thread {
     flex: 0 0 100%;
     max-width: 100%;
+  }
+
+  .setup-card {
+    border-radius: 24px;
   }
 </style>

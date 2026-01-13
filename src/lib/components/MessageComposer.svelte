@@ -10,6 +10,9 @@
   import { renderMarkdown } from '$lib/utils/markdown';
 
   let message = '';
+  let hasBaseUrl = false;
+
+  $: hasBaseUrl = $settingsStore.baseUrl.trim().length > 0;
 
 
   const buildUiError = (
@@ -265,6 +268,11 @@
         placeholder="Message QuillChat..."
         bind:value={message}
       ></textarea>
+      {#if !hasBaseUrl}
+        <p class="text-muted small mb-0">
+          Add a base URL in Settings to enable chatting.
+        </p>
+      {/if}
       {#if message.trim()}
         <div class="markdown-preview">
           <p class="text-uppercase small text-muted mb-2">Preview</p>
@@ -277,7 +285,7 @@
           type="button"
           class="btn btn-success rounded-pill px-4"
           on:click={sendMessage}
-          disabled={!message.trim()}
+          disabled={!message.trim() || !hasBaseUrl}
         >
           Send
         </button>
