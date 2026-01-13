@@ -11,13 +11,13 @@ This document outlines production deployment options for QuillChat (SvelteKit + 
 
 ## Configuration Notes
 
-QuillChat uses `@sveltejs/adapter-auto`, which selects the deployment adapter based on the target platform. For **static** hosts (GitHub Pages, S3, Azure Static Web Apps), you will typically want to switch to `@sveltejs/adapter-static` and export a fully static site. For **serverless** platforms (Vercel), `adapter-auto` works out of the box.
+QuillChat uses `@sveltejs/adapter-static` to produce a fully static site for static hosts (GitHub Pages, S3, Azure Static Web Apps). If you need SSR on a serverless platform (e.g., Vercel), switch to `@sveltejs/adapter-auto` or the platform-specific adapter instead.
 
 ### Static export (recommended for purely static hosts)
 
-1. Install the static adapter:
+1. Ensure the static adapter is installed:
    - `npm install --save-dev @sveltejs/adapter-static`
-2. Update `svelte.config.js` to use the static adapter.
+2. Verify `svelte.config.js` uses the static adapter.
 3. Rebuild with `npm run build`.
 
 > If your app requires server-side rendering (SSR) or API endpoints, use a platform that supports SSR (e.g., Vercel). Pure static hosts will not run server code.
