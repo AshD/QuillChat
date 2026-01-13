@@ -13,8 +13,8 @@
 <section class="chat-layout d-grid gap-4">
   <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
-      <h1 class="h3 mb-1">Chat Workspace</h1>
-      <p class="text-muted mb-0">A calm, focused space for crafting responses.</p>
+      <h1 class="h3 mb-1">Chat Client</h1>
+      <p class="text-muted mb-0">The deployed QuillChat workspace lives right here.</p>
     </div>
     <div class="d-flex align-items-center gap-3 flex-wrap">
       <button

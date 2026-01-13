@@ -5,4 +5,5 @@ AI Chat Client
 
 This project is configured to deploy to GitHub Pages using SvelteKit's static adapter. The
 workflow at `.github/workflows/deploy.yml` builds the app with `BASE_PATH` set to the
-repository name so asset paths resolve correctly when served from a subdirectory.
+repository name so asset paths resolve correctly when served from a subdirectory, and
+the static output is written to `docs/` for the Pages artifact upload.
