@@ -3,6 +3,7 @@
   import { currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
   import { uiStore, type UiError } from '$lib/stores/ui';
+  import { renderMarkdown } from '$lib/utils/markdown';
 
   let currentMessages: MessageRecord[] = [];
   let activeError: UiError | null = null;
@@ -26,6 +27,7 @@
       hour: '2-digit',
       minute: '2-digit',
     });
+
 </script>
 
 <section class="message-list d-flex flex-column gap-3 flex-grow-1">
@@ -85,7 +87,7 @@
               <span class="role fw-semibold">{message.role}</span>
               <span>{formatTime(message.createdAt)}</span>
             </div>
-            <p class="mt-2 mb-0">{message.content}</p>
+            <div class="message-content mt-2">{@html renderMarkdown(message.content)}</div>
           </article>
         </div>
       {/each}
@@ -126,8 +128,39 @@
     border-color: #e2e8f0;
   }
 
-  .message-bubble p {
-    white-space: pre-wrap;
+  .message-content {
+    word-break: break-word;
+  }
+
+  .message-content :global(p) {
+    margin: 0;
+  }
+
+  .message-content :global(p + p) {
+    margin-top: 0.75rem;
+  }
+
+  .message-content :global(ul),
+  .message-content :global(ol) {
+    margin: 0.5rem 0 0.5rem 1.25rem;
+  }
+
+  .message-content :global(pre) {
+    margin: 0.75rem 0 0;
+    padding: 0.75rem 1rem;
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+
+  .message-content :global(code) {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9em;
+  }
+
+  .message-content :global(pre code) {
+    color: inherit;
   }
 
   .border-dashed {
