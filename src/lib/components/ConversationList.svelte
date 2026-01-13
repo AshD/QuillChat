@@ -74,7 +74,6 @@
                 <h3 class="h6 mb-1 fw-semibold">{conversation.title}</h3>
                 <span class="text-muted small">{formatTimestamp(conversation.updatedAt)}</span>
               </div>
-              <span class="meta text-uppercase text-muted small">Updated</span>
             </div>
           </button>
           <button
