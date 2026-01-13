@@ -10,6 +10,8 @@
   import { renderMarkdown } from '$lib/utils/markdown';
 
   let message = '';
+  let messageInput: HTMLTextAreaElement | null = null;
+  let canEditLastMessage = false;
 
   const handleComposerKeydown = (event: KeyboardEvent) => {
     if (event.isComposing || event.key !== 'Enter' || event.shiftKey) {
@@ -21,6 +23,15 @@
       void sendMessage();
     }
   };
+
+  $: {
+    if (!$currentConversationIdStore) {
+      canEditLastMessage = false;
+    } else {
+      const conversationMessages = $messagesStore[$currentConversationIdStore] ?? [];
+      canEditLastMessage = conversationMessages.some((item) => item.role === 'user');
+    }
+  }
 
   const buildUiError = (
     error: unknown,
@@ -262,6 +273,46 @@
       handleStreamError(error);
     }
   };
+
+  const focusComposer = () => {
+    messageInput?.focus();
+  };
+
+  const copyDraft = async () => {
+    if (!message.trim() || !navigator?.clipboard) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(message);
+  };
+
+  const editLastMessage = () => {
+    const conversationId = $currentConversationIdStore;
+    if (!conversationId) {
+      return;
+    }
+
+    const conversationMessages = $messagesStore[conversationId] ?? [];
+    const lastUserMessage = [...conversationMessages]
+      .reverse()
+      .find((item) => item.role === 'user');
+
+    if (!lastUserMessage) {
+      return;
+    }
+
+    message = lastUserMessage.content;
+    focusComposer();
+  };
+
+  const resetDraft = () => {
+    if (!message) {
+      return;
+    }
+
+    message = '';
+    focusComposer();
+  };
 </script>
 
 <section class="message-composer chatgpt-card">
@@ -274,6 +325,7 @@
         rows="3"
         placeholder="Message QuillChat..."
         bind:value={message}
+        bind:this={messageInput}
         on:keydown={handleComposerKeydown}
       ></textarea>
       {#if message.trim()}
@@ -284,14 +336,46 @@
       {/if}
       <div class="d-flex justify-content-between align-items-center mt-2">
         <small class="text-muted">Shift + Enter for a new line · Markdown supported</small>
-        <button
-          type="button"
-          class="btn btn-success rounded-pill px-4"
-          on:click={sendMessage}
-          disabled={!message.trim()}
-        >
-          Send
-        </button>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm composer-action"
+            on:click={() => void copyDraft()}
+            disabled={!message.trim()}
+            aria-label="Copy draft"
+            title="Copy draft"
+          >
+            <i class="bi bi-copy" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm composer-action"
+            on:click={editLastMessage}
+            disabled={!canEditLastMessage}
+            aria-label="Edit last message"
+            title="Edit last message"
+          >
+            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm composer-action"
+            on:click={resetDraft}
+            disabled={!message}
+            aria-label="Clear draft"
+            title="Clear draft"
+          >
+            <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="btn btn-success rounded-pill px-4"
+            on:click={sendMessage}
+            disabled={!message.trim()}
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -307,6 +391,19 @@
     padding: 1rem 1.25rem;
     background: var(--composer-bg);
     border: 1px solid var(--composer-border);
+  }
+
+  .composer-action {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+
+  .composer-action i {
+    font-size: 1rem;
   }
 
   textarea {
