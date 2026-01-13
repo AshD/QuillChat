@@ -11,6 +11,16 @@
 
   let message = '';
 
+  const handleComposerKeydown = (event: KeyboardEvent) => {
+    if (event.isComposing || event.key !== 'Enter' || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    if (message.trim()) {
+      void sendMessage();
+    }
+  };
 
   const buildUiError = (
     error: unknown,
@@ -264,6 +274,7 @@
         rows="3"
         placeholder="Message QuillChat..."
         bind:value={message}
+        on:keydown={handleComposerKeydown}
       ></textarea>
       {#if message.trim()}
         <div class="markdown-preview">
