@@ -9,8 +9,8 @@ const config = {
   kit: {
     adapter: adapter({
       fallback: '404.html',
-      pages: '',
-      assets: ''
+      pages: 'src',
+      assets: 'static'
     }),
     paths: {
       base: basePath
