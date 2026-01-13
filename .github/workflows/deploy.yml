@@ -27,7 +27,7 @@ jobs:
         run: npm install --no-package-lock
       - name: Build
         env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+          BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
