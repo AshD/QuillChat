@@ -15,23 +15,21 @@
 </script>
 
 <section class="chat-layout d-grid gap-4">
-  <header class="d-flex justify-content-end align-items-center">
-    {#if isSidebarCollapsed}
-      <button
-        type="button"
-        class="archive-toggle"
-        on:click={toggleSidebar}
-        aria-pressed={isSidebarCollapsed}
-        aria-label="Show archive"
-        title="Show archive"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm4 2h2v6H9V9zm4 0h2v6h-2V9z"
-          />
-        </svg>
-      </button>
-    {/if}
+  <header class="d-flex align-items-center">
+    <button
+      type="button"
+      class="archive-toggle"
+      on:click={toggleSidebar}
+      aria-pressed={isSidebarCollapsed}
+      aria-label={isSidebarCollapsed ? 'Show archive' : 'Hide archive'}
+      title={isSidebarCollapsed ? 'Show archive' : 'Hide archive'}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm4 0v14h2V5H8zm4 0v14h6V5h-6z"
+        />
+      </svg>
+    </button>
   </header>
 
   {#if !hasSettings}
@@ -53,20 +51,6 @@
       <div class="chatgpt-card h-100">
         <div class="card-body d-flex flex-column gap-3">
           <div class="sidebar-toolbar d-flex justify-content-between align-items-center">
-            <button
-              type="button"
-              class="archive-toggle"
-              on:click={toggleSidebar}
-              aria-pressed={isSidebarCollapsed}
-              aria-label="Hide archive"
-              title="Hide archive"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm4 2h2v6H9V9zm4 0h2v6h-2V9z"
-                />
-              </svg>
-            </button>
             <span class="text-uppercase text-muted small">Archive</span>
           </div>
           <ConversationList />
