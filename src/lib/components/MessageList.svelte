@@ -238,7 +238,7 @@
                   <div class="assistant-actions d-flex align-items-center gap-1">
                     <button
                       type="button"
-                      class="assistant-action btn btn-light btn-sm"
+                      class="assistant-action btn btn-light btn-sm icon-button"
                       on:click={() => void copyMessage(message)}
                       aria-label="Copy response"
                       title="Copy response"
@@ -264,7 +264,7 @@
                     </button>
                     <button
                       type="button"
-                      class="assistant-action btn btn-light btn-sm"
+                      class="assistant-action btn btn-light btn-sm icon-button"
                       on:click={() => void handleEditClick(message)}
                       aria-label="Edit response"
                       title={editingMessageId === message.id ? 'Save edits' : 'Edit response'}
@@ -286,7 +286,7 @@
                     </button>
                     <button
                       type="button"
-                      class="assistant-action btn btn-light btn-sm"
+                      class="assistant-action btn btn-light btn-sm icon-button"
                       on:click={() => void refreshMessage(message)}
                       aria-label="Refresh response"
                       title="Refresh response"
@@ -386,6 +386,14 @@
 
   .assistant-action svg {
     display: block;
+  }
+
+  .icon-button {
+    border: none;
+  }
+
+  .icon-button:focus {
+    box-shadow: none;
   }
 
   .assistant-action:disabled {
