@@ -360,6 +360,7 @@
   .message-bubble.user {
     background: #eefbf5;
     border-color: #bbf7d0;
+    text-align: right;
   }
 
   .message-bubble.assistant {
