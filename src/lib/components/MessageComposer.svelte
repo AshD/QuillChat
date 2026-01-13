@@ -7,8 +7,10 @@
   import { messagesStore } from '$lib/stores/messages';
   import { settingsStore } from '$lib/stores/settings';
   import { uiStore, type UiError } from '$lib/stores/ui';
+  import { renderMarkdown } from '$lib/utils/markdown';
 
   let message = '';
+
 
   const buildUiError = (
     error: unknown,
@@ -256,8 +258,14 @@
         placeholder="Message QuillChat..."
         bind:value={message}
       ></textarea>
+      {#if message.trim()}
+        <div class="markdown-preview">
+          <p class="text-uppercase small text-muted mb-2">Preview</p>
+          <div class="preview-content">{@html renderMarkdown(message)}</div>
+        </div>
+      {/if}
       <div class="d-flex justify-content-between align-items-center mt-2">
-        <small class="text-muted">Shift + Enter for a new line</small>
+        <small class="text-muted">Shift + Enter for a new line · Markdown supported</small>
         <button
           type="button"
           class="btn btn-success rounded-pill px-4"
@@ -289,5 +297,47 @@
 
   textarea:focus {
     box-shadow: none;
+  }
+
+  .markdown-preview {
+    border-radius: 14px;
+    border: 1px dashed #e2e8f0;
+    background: #ffffff;
+    padding: 0.75rem 1rem;
+  }
+
+  .preview-content {
+    word-break: break-word;
+  }
+
+  .preview-content :global(p) {
+    margin: 0;
+  }
+
+  .preview-content :global(p + p) {
+    margin-top: 0.75rem;
+  }
+
+  .preview-content :global(ul),
+  .preview-content :global(ol) {
+    margin: 0.5rem 0 0.5rem 1.25rem;
+  }
+
+  .preview-content :global(pre) {
+    margin: 0.75rem 0 0;
+    padding: 0.75rem 1rem;
+    background: #0f172a;
+    color: #f8fafc;
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+
+  .preview-content :global(code) {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.9em;
+  }
+
+  .preview-content :global(pre code) {
+    color: inherit;
   }
 </style>
