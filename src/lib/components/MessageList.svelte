@@ -230,7 +230,6 @@
         <div class="message-row d-flex {message.role}">
           <article class="message-bubble {message.role}">
             <div class="meta d-flex justify-content-between align-items-start small text-uppercase text-muted">
-              <span class="role fw-semibold">{message.role}</span>
               <div class="meta-details d-flex align-items-center gap-2">
                 <span>{formatTime(message.createdAt)}</span>
                 {#if message.role === 'assistant'}
@@ -349,7 +348,8 @@
   }
 
   .message-bubble {
-    max-width: min(720px, 100%);
+    width: 80%;
+    max-width: 80%;
     padding: 1rem 1.25rem;
     border-radius: 18px;
     border: 1px solid #e5e7eb;
@@ -360,6 +360,16 @@
   .message-bubble.user {
     background: #eefbf5;
     border-color: #bbf7d0;
+    text-align: right;
+  }
+
+  .message-bubble.user .meta {
+    justify-content: flex-end;
+  }
+
+  .message-bubble.user .meta-details {
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .message-bubble.assistant {
