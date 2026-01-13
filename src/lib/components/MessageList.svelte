@@ -181,7 +181,6 @@
   <header class="d-flex justify-content-between align-items-end">
     <div>
       <h2 class="h6 text-uppercase text-muted mb-1">Messages</h2>
-      <p class="text-muted small mb-0">Conversation history appears here.</p>
     </div>
   </header>
 

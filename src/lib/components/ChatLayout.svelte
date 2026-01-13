@@ -15,25 +15,23 @@
 </script>
 
 <section class="chat-layout d-grid gap-4">
-  <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-    <div>
-      <h1 class="h3 mb-1">Chat Client</h1>
-      <p class="text-muted mb-0">The deployed QuillChat workspace lives right here.</p>
-    </div>
-    <div class="d-flex align-items-center gap-3 flex-wrap">
+  <header class="d-flex justify-content-end align-items-center">
+    {#if isSidebarCollapsed}
       <button
         type="button"
-        class="btn btn-outline-secondary btn-sm rounded-pill"
+        class="archive-toggle"
         on:click={toggleSidebar}
         aria-pressed={isSidebarCollapsed}
+        aria-label="Show archive"
+        title="Show archive"
       >
-        {isSidebarCollapsed ? 'Show archive' : 'Hide archive'}
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm4 2h2v6H9V9zm4 0h2v6h-2V9z"
+          />
+        </svg>
       </button>
-      <div class="d-flex align-items-center gap-2">
-        <span class="status-dot"></span>
-        <span class="text-muted small">All systems ready</span>
-      </div>
-    </div>
+    {/if}
   </header>
 
   {#if !hasSettings}
@@ -53,7 +51,24 @@
   <div class="row g-4 workspace {isSidebarCollapsed ? 'collapsed' : ''}">
     <aside class="col-12 col-lg-4 col-xl-3 sidebar">
       <div class="chatgpt-card h-100">
-        <div class="card-body">
+        <div class="card-body d-flex flex-column gap-3">
+          <div class="sidebar-toolbar d-flex justify-content-between align-items-center">
+            <button
+              type="button"
+              class="archive-toggle"
+              on:click={toggleSidebar}
+              aria-pressed={isSidebarCollapsed}
+              aria-label="Hide archive"
+              title="Hide archive"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v10h14V7H5zm4 2h2v6H9V9zm4 0h2v6h-2V9z"
+                />
+              </svg>
+            </button>
+            <span class="text-uppercase text-muted small">Archive</span>
+          </div>
           <ConversationList />
         </div>
       </div>
@@ -74,12 +89,30 @@
     min-height: 480px;
   }
 
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: #22c55e;
-    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+  .archive-toggle {
+    border: none;
+    background: transparent;
+    padding: 4px;
+    border-radius: 10px;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .archive-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+
+  .archive-toggle:hover {
+    background: rgba(148, 163, 184, 0.2);
+  }
+
+  .archive-toggle:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.6);
+    outline-offset: 2px;
   }
 
   .workspace.collapsed .sidebar {

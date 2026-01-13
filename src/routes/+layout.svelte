@@ -59,7 +59,6 @@
       >
         <span class="fs-4">✒️</span>
         <span>QuillChat</span>
-        <span class="badge rounded-pill text-bg-dark ms-2">GPT-5</span>
       </a>
       <nav class="d-flex align-items-center gap-2">
         <a class="btn btn-sm btn-light border-0 text-secondary" href={withBase('/')}>Chat</a>
