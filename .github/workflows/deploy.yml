@@ -29,10 +29,15 @@ jobs:
         env:
           BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
+
+      # 👇 THIS is the .nojekyll line
+      - name: Disable Jekyll
+        run: touch build/.nojekyll
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: build
   deploy:
     needs: build
     runs-on: ubuntu-latest
