@@ -14,7 +14,7 @@
 
   const buildUiError = (
     error: unknown,
-    context: { conversationId: string; model: string; mode: 'direct' | 'proxy' },
+    context: { conversationId: string; model: string; mode: 'direct' },
   ): UiError => {
     const base: UiError = {
       id: crypto.randomUUID(),
@@ -62,10 +62,7 @@
         return {
           ...base,
           title: 'Service unavailable',
-          message:
-            context.mode === 'proxy'
-              ? 'The proxy could not reach the chat service. Try again shortly.'
-              : 'The chat service is temporarily unavailable. Try again shortly.',
+          message: 'The chat service is temporarily unavailable. Try again shortly.',
         };
       }
 
@@ -216,7 +213,6 @@
       await streamChatCompletions({
         baseUrl: settings.baseUrl,
         apiKey: settings.apiKey,
-        useProxy: settings.useProxy,
         request: {
           model: settings.defaultModel,
           messages: payloadMessages,
@@ -234,7 +230,7 @@
       const uiError = buildUiError(error, {
         conversationId,
         model: settings.defaultModel,
-        mode: settings.useProxy ? 'proxy' : 'direct',
+        mode: 'direct',
       });
       uiStore.setError({
         ...uiError,
