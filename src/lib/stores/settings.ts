@@ -7,6 +7,8 @@ export type Settings = {
   defaultModel: string;
   temperature: number;
   useProxy: boolean;
+  theme: 'light' | 'dark' | 'system';
+  customInstructions: string;
 };
 
 const STORAGE_KEY = 'quillchat.settings';
@@ -17,6 +19,8 @@ const defaultSettings: Settings = {
   defaultModel: 'gpt-3.5-turbo',
   temperature: 0.7,
   useProxy: false,
+  theme: 'system',
+  customInstructions: '',
 };
 
 const loadSettings = (): Settings => {
@@ -42,6 +46,14 @@ const loadSettings = (): Settings => {
         typeof parsed.useProxy === 'boolean'
           ? parsed.useProxy
           : defaultSettings.useProxy,
+      theme:
+        parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === 'system'
+          ? parsed.theme
+          : defaultSettings.theme,
+      customInstructions:
+        typeof parsed.customInstructions === 'string'
+          ? parsed.customInstructions
+          : defaultSettings.customInstructions,
     };
   } catch {
     return defaultSettings;

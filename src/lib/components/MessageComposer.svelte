@@ -183,10 +183,21 @@
 
     const settings = get(settingsStore);
     const messages = get(messagesStore)[conversationId] ?? [];
-    const payloadMessages = messages.map((item) => ({
-      role: item.role as 'system' | 'user' | 'assistant',
-      content: item.content,
-    }));
+    const systemInstructions = settings.customInstructions.trim();
+    const payloadMessages = [
+      ...(systemInstructions
+        ? [
+            {
+              role: 'system' as const,
+              content: systemInstructions,
+            },
+          ]
+        : []),
+      ...messages.map((item) => ({
+        role: item.role as 'system' | 'user' | 'assistant',
+        content: item.content,
+      })),
+    ];
 
     const assistantMessage: MessageRecord = {
       id: crypto.randomUUID(),
@@ -287,8 +298,8 @@
   .composer {
     border-radius: 18px;
     padding: 1rem 1.25rem;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--composer-bg);
+    border: 1px solid var(--composer-border);
   }
 
   textarea {
@@ -301,8 +312,8 @@
 
   .markdown-preview {
     border-radius: 14px;
-    border: 1px dashed #e2e8f0;
-    background: #ffffff;
+    border: 1px dashed var(--preview-border);
+    background: var(--preview-bg);
     padding: 0.75rem 1rem;
   }
 
