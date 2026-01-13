@@ -7,12 +7,16 @@
 
   let isSidebarCollapsed = false;
   let hasSettings = false;
+  let showSettings = false;
 
   const toggleSidebar = () => {
     isSidebarCollapsed = !isSidebarCollapsed;
   };
 
   $: hasSettings = $settingsStore.baseUrl.trim().length > 0;
+  $: if (!hasSettings) {
+    showSettings = true;
+  }
 </script>
 
 <section class="chat-layout d-grid gap-4">
@@ -22,6 +26,14 @@
       <p class="text-muted mb-0">The deployed QuillChat workspace lives right here.</p>
     </div>
     <div class="d-flex align-items-center gap-3 flex-wrap">
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-sm rounded-pill"
+        on:click={() => (showSettings = !showSettings)}
+        aria-expanded={showSettings}
+      >
+        {showSettings ? 'Hide settings' : 'Show settings'}
+      </button>
       <button
         type="button"
         class="btn btn-outline-secondary btn-sm rounded-pill"
@@ -37,13 +49,15 @@
     </div>
   </header>
 
-  {#if !hasSettings}
+  {#if showSettings}
     <div class="chatgpt-card setup-card">
       <div class="card-body d-grid gap-2">
         <div>
-          <h2 class="h5 mb-1">Connect your model</h2>
+          <h2 class="h5 mb-1">{hasSettings ? 'Quick settings' : 'Connect your model'}</h2>
           <p class="text-muted mb-0">
-            Add your API base URL (and key if required) to start chatting with an OpenAI-compatible model.
+            {hasSettings
+              ? 'Update your base URL, API key, or model defaults without leaving the chat.'
+              : 'Add your API base URL (and key if required) to start chatting with an OpenAI-compatible model.'}
           </p>
         </div>
         <SettingsForm />
