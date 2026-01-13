@@ -339,7 +339,7 @@
         <div class="d-flex align-items-center gap-2">
           <button
             type="button"
-            class="btn btn-outline-secondary btn-sm composer-action"
+            class="btn btn-outline-secondary btn-sm composer-action icon-button"
             on:click={() => void copyDraft()}
             disabled={!message.trim()}
             aria-label="Copy draft"
@@ -349,7 +349,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-outline-secondary btn-sm composer-action"
+            class="btn btn-outline-secondary btn-sm composer-action icon-button"
             on:click={editLastMessage}
             disabled={!canEditLastMessage}
             aria-label="Edit last message"
@@ -359,7 +359,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-outline-secondary btn-sm composer-action"
+            class="btn btn-outline-secondary btn-sm composer-action icon-button"
             on:click={resetDraft}
             disabled={!message}
             aria-label="Clear draft"
@@ -404,6 +404,14 @@
 
   .composer-action i {
     font-size: 1rem;
+  }
+
+  .icon-button {
+    border: none;
+  }
+
+  .icon-button:focus {
+    box-shadow: none;
   }
 
   textarea {

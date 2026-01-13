@@ -78,7 +78,7 @@
             </div>
           </button>
           <button
-            class="btn btn-outline-secondary btn-sm rounded-circle"
+            class="btn btn-outline-secondary btn-sm rounded-circle icon-button"
             type="button"
             on:click={() => removeConversation(conversation.id)}
             aria-label="Delete conversation"
@@ -106,5 +106,13 @@
 
   .border-dashed {
     border-style: dashed;
+  }
+
+  .icon-button {
+    border: none;
+  }
+
+  .icon-button:focus {
+    box-shadow: none;
   }
 </style>
