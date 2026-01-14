@@ -1,6 +1,12 @@
 <script lang="ts">
+  import { listChatCompletionModels } from '$lib/api/models';
   import { getActiveProvider, settingsStore } from '$lib/stores/settings';
   import type { ProviderSettings, Settings } from '$lib/stores/settings';
+
+  let availableModels: string[] = [];
+  let isLoadingModels = false;
+  let modelError = '';
+  let modelRequestId = 0;
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     settingsStore.update((current) => ({
@@ -43,6 +49,36 @@
     updateProvider({ temperature: Number(event.currentTarget.value) });
   };
 
+  const refreshModels = async () => {
+    if (!activeProvider?.apiKey) {
+      availableModels = [];
+      modelError = '';
+      return;
+    }
+
+    const requestId = ++modelRequestId;
+    isLoadingModels = true;
+    modelError = '';
+    try {
+      const models = await listChatCompletionModels('https://api.openai.com', activeProvider.apiKey);
+      if (requestId !== modelRequestId) {
+        return;
+      }
+      availableModels = models;
+    } catch (error) {
+      if (requestId !== modelRequestId) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Failed to fetch models.';
+      modelError = message;
+      availableModels = [];
+    } finally {
+      if (requestId === modelRequestId) {
+        isLoadingModels = false;
+      }
+    }
+  };
+
   const addProvider = () => {
     settingsStore.addProvider();
   };
@@ -56,6 +92,10 @@
   };
 
   $: activeProvider = getActiveProvider($settingsStore);
+  $: providerKey = activeProvider ? `${activeProvider.id}-${activeProvider.apiKey}` : '';
+  $: if (providerKey) {
+    void refreshModels();
+  }
 </script>
 
 <form class="settings-form chatgpt-card">
@@ -139,10 +179,21 @@
         id="default-model"
         class="form-control form-control-lg"
         type="text"
-        placeholder="gpt-3.5-turbo"
+        list="settings-models"
+        placeholder={isLoadingModels ? 'Loading models...' : 'gpt-3.5-turbo'}
         value={activeProvider?.defaultModel ?? ''}
         on:input={handleProviderTextInput('defaultModel')}
       />
+      <datalist id="settings-models">
+        {#each availableModels as model}
+          <option value={model}></option>
+        {/each}
+      </datalist>
+      {#if isLoadingModels}
+        <p class="text-muted small mt-1 mb-0">Loading models…</p>
+      {:else if modelError}
+        <p class="text-muted small mt-1 mb-0">Model fetch failed: {modelError}</p>
+      {/if}
     </div>
 
     <div class="field">
