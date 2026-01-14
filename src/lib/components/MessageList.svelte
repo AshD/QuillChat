@@ -2,7 +2,7 @@
   import type { MessageRecord } from '$lib/storage/db';
   import { currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
-  import { settingsStore } from '$lib/stores/settings';
+  import { getActiveProvider, settingsStore } from '$lib/stores/settings';
   import { uiStore, type UiError } from '$lib/stores/ui';
   import { renderMarkdown } from '$lib/utils/markdown';
   import { ChatCompletionError, streamChatCompletions } from '$lib/api/chat';
@@ -117,12 +117,12 @@
       return;
     }
 
-    const settings = $settingsStore;
-    if (!settings.baseUrl || !settings.defaultModel) {
+    const provider = getActiveProvider($settingsStore);
+    if (!provider?.baseUrl || !provider.defaultModel) {
       uiStore.setError({
         id: crypto.randomUUID(),
         title: 'Missing settings',
-        message: 'Add your API base URL and default model before refreshing responses.',
+        message: 'Add your provider base URL and default model before refreshing responses.',
         conversationId: message.conversationId,
         mode: 'direct',
       });
@@ -134,7 +134,7 @@
       return;
     }
 
-    const systemInstructions = settings.customInstructions.trim();
+    const systemInstructions = provider.customInstructions.trim();
     const payloadMessages = [
       ...(systemInstructions
         ? [
@@ -156,12 +156,12 @@
 
     try {
       await streamChatCompletions({
-        baseUrl: settings.baseUrl,
-        apiKey: settings.apiKey,
+        baseUrl: provider.baseUrl,
+        apiKey: provider.apiKey,
         request: {
-          model: settings.defaultModel,
+          model: provider.defaultModel,
           messages: payloadMessages,
-          temperature: settings.temperature,
+          temperature: provider.temperature,
         },
         onDelta: async (content) => {
           updatedMessage.content += content;
