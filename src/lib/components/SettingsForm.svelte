@@ -50,7 +50,7 @@
   };
 
   const refreshModels = async () => {
-    if (!activeProvider?.apiKey) {
+    if (!activeProvider?.baseUrl) {
       availableModels = [];
       modelError = '';
       return;
@@ -60,7 +60,7 @@
     isLoadingModels = true;
     modelError = '';
     try {
-      const models = await listChatCompletionModels('https://api.openai.com', activeProvider.apiKey);
+      const models = await listChatCompletionModels(activeProvider.baseUrl, activeProvider.apiKey);
       if (requestId !== modelRequestId) {
         return;
       }
@@ -92,7 +92,9 @@
   };
 
   $: activeProvider = getActiveProvider($settingsStore);
-  $: providerKey = activeProvider ? `${activeProvider.id}-${activeProvider.apiKey}` : '';
+  $: providerKey = activeProvider
+    ? `${activeProvider.id}-${activeProvider.baseUrl}-${activeProvider.apiKey}`
+    : '';
   $: if (providerKey) {
     void refreshModels();
   }
