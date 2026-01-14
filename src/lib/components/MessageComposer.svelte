@@ -5,7 +5,7 @@
   import type { ConversationRecord, MessageRecord } from '$lib/storage/db';
   import { conversationsStore, currentConversationIdStore } from '$lib/stores/conversations';
   import { messagesStore } from '$lib/stores/messages';
-  import { settingsStore } from '$lib/stores/settings';
+  import { getActiveProvider, settingsStore } from '$lib/stores/settings';
   import { uiStore, type UiError } from '$lib/stores/ui';
   import { renderMarkdown } from '$lib/utils/markdown';
 
@@ -200,8 +200,19 @@
     message = '';
 
     const settings = get(settingsStore);
+    const activeProvider = getActiveProvider(settings);
+    if (!activeProvider?.baseUrl) {
+      uiStore.setError({
+        id: crypto.randomUUID(),
+        title: 'Missing provider settings',
+        message: 'Select a provider with a base URL before sending a message.',
+        conversationId,
+        mode: 'direct',
+      });
+      return;
+    }
     const messages = get(messagesStore)[conversationId] ?? [];
-    const systemInstructions = settings.customInstructions.trim();
+    const systemInstructions = activeProvider.customInstructions.trim();
     const payloadMessages = [
       ...(systemInstructions
         ? [
@@ -232,12 +243,12 @@
       await messagesStore.update({ ...assistantMessage });
 
       await streamChatCompletions({
-        baseUrl: settings.baseUrl,
-        apiKey: settings.apiKey,
+        baseUrl: activeProvider.baseUrl,
+        apiKey: activeProvider.apiKey,
         request: {
-          model: settings.defaultModel,
+          model: activeProvider.defaultModel,
           messages: payloadMessages,
-          temperature: settings.temperature,
+          temperature: activeProvider.temperature,
         },
         onDelta: async (content) => {
           assistantMessage.content += content;
@@ -250,7 +261,7 @@
       console.error(error);
       const uiError = buildUiError(error, {
         conversationId,
-        model: settings.defaultModel,
+        model: activeProvider.defaultModel,
         mode: 'direct',
       });
       uiStore.setError({

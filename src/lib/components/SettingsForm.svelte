@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { settingsStore } from '$lib/stores/settings';
-  import type { Settings } from '$lib/stores/settings';
+  import { getActiveProvider, settingsStore } from '$lib/stores/settings';
+  import type { ProviderSettings, Settings } from '$lib/stores/settings';
 
   const updateSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     settingsStore.update((current) => ({
@@ -9,32 +9,106 @@
     }));
   };
 
-  const handleTextInput =
-    (key: 'baseUrl' | 'apiKey' | 'defaultModel') =>
+  const updateProvider = (updates: Partial<ProviderSettings>) => {
+    const activeProvider = getActiveProvider($settingsStore);
+    if (!activeProvider) {
+      return;
+    }
+    settingsStore.updateProvider(activeProvider.id, updates);
+  };
+
+  const handleProviderTextInput =
+    (key: 'name' | 'baseUrl' | 'apiKey' | 'defaultModel') =>
     (event: Event & { currentTarget: HTMLInputElement }) => {
-      updateSetting(key, event.currentTarget.value);
+      updateProvider({ [key]: event.currentTarget.value });
     };
 
   const handleSelectInput =
-    (key: 'theme') =>
+    (key: 'theme' | 'activeProviderId') =>
     (event: Event & { currentTarget: HTMLSelectElement }) => {
+      if (key === 'activeProviderId') {
+        settingsStore.setActiveProviderId(event.currentTarget.value);
+        return;
+      }
       updateSetting(key, event.currentTarget.value as Settings['theme']);
     };
 
   const handleTextAreaInput =
     (key: 'customInstructions') =>
     (event: Event & { currentTarget: HTMLTextAreaElement }) => {
-      updateSetting(key, event.currentTarget.value);
+      updateProvider({ [key]: event.currentTarget.value });
     };
 
   const handleTemperatureInput = (event: Event & { currentTarget: HTMLInputElement }) => {
-    updateSetting('temperature', Number(event.currentTarget.value));
+    updateProvider({ temperature: Number(event.currentTarget.value) });
   };
 
+  const addProvider = () => {
+    settingsStore.addProvider();
+  };
+
+  const removeProvider = () => {
+    const activeProvider = getActiveProvider($settingsStore);
+    if (!activeProvider) {
+      return;
+    }
+    settingsStore.removeProvider(activeProvider.id);
+  };
+
+  $: activeProvider = getActiveProvider($settingsStore);
 </script>
 
 <form class="settings-form chatgpt-card">
   <div class="card-body d-grid gap-3">
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="provider-select">
+        Provider
+      </label>
+      <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
+        <select
+          id="provider-select"
+          class="form-select form-select-lg flex-grow-1"
+          value={$settingsStore.activeProviderId}
+          on:change={handleSelectInput('activeProviderId')}
+        >
+          {#each $settingsStore.providers as provider}
+            <option value={provider.id}>{provider.name}</option>
+          {/each}
+        </select>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-lg"
+            on:click={addProvider}
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger btn-lg"
+            on:click={removeProvider}
+            disabled={$settingsStore.providers.length <= 1}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="form-label text-uppercase small text-muted" for="provider-name">
+        Provider name
+      </label>
+      <input
+        id="provider-name"
+        class="form-control form-control-lg"
+        type="text"
+        placeholder="Acme AI"
+        value={activeProvider?.name ?? ''}
+        on:input={handleProviderTextInput('name')}
+      />
+    </div>
+
     <div class="field">
       <label class="form-label text-uppercase small text-muted" for="base-url">Base URL</label>
       <input
@@ -42,8 +116,8 @@
         class="form-control form-control-lg"
         type="url"
         placeholder="https://api.example.com"
-        value={$settingsStore.baseUrl}
-        on:input={handleTextInput('baseUrl')}
+        value={activeProvider?.baseUrl ?? ''}
+        on:input={handleProviderTextInput('baseUrl')}
       />
     </div>
 
@@ -54,8 +128,8 @@
         class="form-control form-control-lg"
         type="password"
         placeholder="sk-..."
-        value={$settingsStore.apiKey}
-        on:input={handleTextInput('apiKey')}
+        value={activeProvider?.apiKey ?? ''}
+        on:input={handleProviderTextInput('apiKey')}
       />
     </div>
 
@@ -66,8 +140,8 @@
         class="form-control form-control-lg"
         type="text"
         placeholder="gpt-3.5-turbo"
-        value={$settingsStore.defaultModel}
-        on:input={handleTextInput('defaultModel')}
+        value={activeProvider?.defaultModel ?? ''}
+        on:input={handleProviderTextInput('defaultModel')}
       />
     </div>
 
@@ -80,7 +154,7 @@
         min="0"
         max="2"
         step="0.1"
-        value={$settingsStore.temperature}
+        value={activeProvider?.temperature ?? 0.7}
         on:input={handleTemperatureInput}
       />
     </div>
@@ -108,7 +182,7 @@
         class="form-control form-control-lg"
         rows="4"
         placeholder="Add system-level guidance for every chat."
-        value={$settingsStore.customInstructions}
+        value={activeProvider?.customInstructions ?? ''}
         on:input={handleTextAreaInput('customInstructions')}
       ></textarea>
       <p class="text-muted small mb-0">
